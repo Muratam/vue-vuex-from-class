@@ -1,5 +1,11 @@
 # Vue Vuex from class
 
+This is an experimental module.
+
+use
+https://github.com/Muratam/vue-vuex-from-class/blob/master/src/class/tovue.js like
+`import {toVue,toVuex} from "./tovue.js";`
+
 # try
 
 - install
@@ -87,7 +93,6 @@ toVuex(class {
 ```
 
 # difference of vue component
-
 normal vue component (not fun)
 
 ```js
