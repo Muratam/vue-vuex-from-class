@@ -13,6 +13,29 @@ div
 </template>
 <script>
 import Child from "./child";
+import { toVue } from "./tovue";
+
+class Normal {
+  constructor() {
+    this.normalData = Normal.n() + "ORMAL_DATA";
+  }
+  toLower(str) {
+    return str.toLowerCase() + this.normalData;
+  }
+  get normalDataLower() {
+    return this.normalData.toLowerCase();
+  }
+  static components() {
+    return { child: Child };
+  }
+  static n() {
+    return "n";
+  }
+  get $$storeStateA() {}
+  set $$storeStateA(_) {}
+}
+module.exports = toVue(Normal);
+/*
 module.exports = {
   methods: {
     toLower(str) {
@@ -41,6 +64,7 @@ module.exports = {
     child: Child
   }
 };
+*/
 </script>
 <style scoped lang="less">
 

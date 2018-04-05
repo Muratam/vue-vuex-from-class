@@ -65,16 +65,16 @@ function getMethods(Class) {
   let funcs =
       Reflect.ownKeys(Class.prototype)
           .filter(x => x !== 'constructor')
-          .map(x => Reflect.getOwnPropertyDescriptor(Class.prototype, x));
+          .map(x => [x, Reflect.getOwnPropertyDescriptor(Class.prototype, x)]);
   let res = {
-    methods: {},
-    getters: {},
-    setters: {},
+    methods: [],
+    getters: [],
+    setters: [],
   };
-  for (let func of funcs) {
-    if (func.value) res.methods.push(func.value);
-    if (func.get) res.getters.push(func.get);
-    if (func.set) res.setters.push(func.set);
+  for (let [name, func] of funcs) {
+    if (func.value) res.methods.push([name, func.value]);
+    if (func.get) res.getters.push([name, func.get]);
+    if (func.set) res.setters.push([name, func.set]);
   }
   return res;
 }
@@ -85,6 +85,55 @@ function getName(Class) {
   return Class.name;
 }
 
+export function toVue(Class) {
+  let res = {
+    methods: {},
+    computed: {},
+  };
+  // setup Methods and Computed
+  let {methods, getters, setters} = getMethods(Class);
+  getters =
+      getters.map(([name, func]) => !name.startsWith('$$') ? [name, func] : [
+        name,
+        function() {
+          return this.$store.state[name.slice(2)];
+        }
+      ]);
+  setters =
+      setters.map(([name, func]) => !name.startsWith('$$') ? [name, func] : [
+        name,
+        function(value) {
+          return this.$store.commit(name, value);
+        }
+      ]);
+  for (let [name, func] of methods) res.methods[name] = func;
+  for (let [name, func] of getters) res.computed[name] = {get: func};
+  for (let [name, func] of setters) {
+    if (name in res.computed)
+      res.computed[name].set = func;
+    else
+      res.computed[name] = {set: func};
+  }
+  // setup components
+  let statics = getStatics(Class);
+  for (let s of statics) {
+    if (s === 'components') res.components = Class[s]();
+  }
+  // setup props and data
+  let props = getParams(Class);
+  if (props.length !== 0) res.props = props;
+  res.data = function() {
+    let args = props.map(p => this[p]);
+    let instance = new Class(...args);
+    let members = getMembers(instance);
+    let res = {};
+    for (let m of members) res[m] = instance[m];
+    return res;
+  };
+  console.log(res);
+  return res;
+}
+export function toVuex(Class) {}
 
 /*
 function translate(Class) {
