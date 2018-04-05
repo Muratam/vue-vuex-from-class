@@ -55,9 +55,13 @@ export function toVue(Class) {
         name,
         function() {
           let funcName = name.slice(2);
-          return (funcName in this.$store.state) ?
-              this.$store.state[funcName] :
-              this.$store.getters[funcName];
+          if (funcName in this.$store.state) return this.$store.state[funcName];
+          if (funcName in this.$store.getters)
+            return this.$store.getters[funcName];
+          // getter や setter に無ければ commit するmutationでしょお
+          return (...args) => {
+            this.$store.commit(funcName, args)
+          }
         }
       ]);
   setters =
@@ -67,7 +71,18 @@ export function toVue(Class) {
           return this.$store.commit(name, value);
         }
       ]);
-  for (let [name, func] of methods) res.methods[name] = func;
+  let specificMethods = [
+    'beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUpdate',
+    'updated', 'activated', 'deactivated', 'beforeDestroy', 'destroyed',
+    'errorCaptured', 'watch'
+  ];
+  for (let [name, func] of methods) {
+    if (specificMethods.includes(name)) {
+      res[name] = (name === 'watch') ? func() : func;
+    } else {
+      res.methods[name] = func;
+    }
+  }
   for (let [name, func] of getters) res.computed[name] = {get: func};
   for (let [name, func] of setters) {
     if (name in res.computed)
