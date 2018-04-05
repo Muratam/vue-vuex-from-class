@@ -24,6 +24,7 @@ normal vue (not fun)
 ```js
 ({
   data() { return { normalData: "NORMAL_DATA" };},
+  components: { child: Child }
   methods: {
     toLower(str) { return str.toLowerCase() + this.normalData; }
   },
@@ -35,7 +36,6 @@ normal vue (not fun)
     },
     $$storeGetterB() { return this.$store.getters.storeGetterB; }
   },
-  components: { child: Child }
 });
 ```
 
@@ -43,12 +43,11 @@ normal vue (not fun)
 
 ```js
 toVue(
-  class Hoge{
-    constructor() { this.classData = Hoge.c() + "LASS_DATA"; }
+  class {
+    constructor() { this.classData = "CLASS_DATA"; }
+    static components() { return { child: Child }; }
     toLower(str) { return str.toLowerCase() + this.classData; }
     get classDataLower() { return this.classData.toLowerCase();}
-    static components() { return { child: Child }; }
-    static c() { return "c";}
     get $$storeStateA() {}
     set $$storeStateA(_) {}
     get $$storeGetterB() {}
@@ -62,19 +61,19 @@ normal vuex (not fun)
 ```js
 new Vuex.Store({
   state: { storeStateA: 'STORE_STATE_A' },
-  getters: {
-    storeGetterFunc: (state, getters) => arg => { return arg; },
-    storeGetterA: (state, getters) => { return 'STORE_GETTER_A';},
-    storeGetterB: (state, getters) => {
-      return getters.storeGetterFunc('HOGE') + state.storeStateA +
-          getters.storeGetterA + ': STORE_GETTER_B';
-    }
-  },
   mutations: {
     add(state) { state.storeStateA = state.storeStateA + 'A'; },
     addArg(state, args) { state.storeStateA = state.storeStateA + args;},
     $$storeStateA(state, arg) { state.storeStateA = arg;}
   }
+  getters: {
+    storeGetterFunc: (state, getters) => arg => { return arg; },
+    storeGetterA: (state, getters) => { return 'STORE_GETTER_A';},
+    storeGetterB: (state, getters) => {
+      return getters.storeGetterFunc('HOGE') +
+          state.storeStateA + getters.storeGetterA + ': STORE_GETTER_B';
+    }
+  },
 })
 ```
 
@@ -84,13 +83,13 @@ toVuex(class {
   constructor() { this.storeStateA = 'STORE_STATE_A'; }
   add() { this.storeStateA = this.storeStateA + 'A'; }
   addArg(args) { this.storeStateA = this.storeStateA + args;}
+  set $$storeStateA(_) {}
   get storeGetterFunc() { return arg => arg; }
   get storeGetterA() { return 'STORE_GETTER_A'; }
   get storeGetterB() {
-    return this.storeGetterFunc('hoge') + this.storeStateA + this.storeGetterA +
-        ' : STORE_GETTER_B';
+    return this.storeGetterFunc('hoge') +
+        this.storeStateA + this.storeGetterA + ' : STORE_GETTER_B';
   }
-  set $$storeStateA(_) {}
 });
 ```
 
@@ -99,14 +98,14 @@ normal vue component (not fun)
 
 ```js
 ({
+  props: ["propA"]
+  data() { return { childData: "CHILD_DATA" + this.propA }; },
   computed: {
     $$storeStateA: {
       get() { return this.$store.state.storeStateA; },
       set(value) { this.$store.commit("$$storeStateA", value); }
     }
   },
-  data() { return { childData: "CHILD_DATA" + this.propA }; },
-  props: ["propA"]
 })
 ```
 
