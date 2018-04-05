@@ -124,20 +124,30 @@ export function toVuex(Class) {
   let {methods, getters, setters} = getMethods(Class);
   for (let [name, func] of methods) {
     res.mutations[name] = function(state, args) {
-      // this に state をバインドして展開して実行
+      let self = this;
+      let bound = new Proxy(state, {
+        get(target, name) {
+          return name in target ?
+              target[name] :
+              name in self.getters ? self.getters[name] :
+                                     self._mutations[name][0];
+        }
+      });
       if (typeof (args) !== 'object')
-        func.bind(state)(args);
+        func.bind(bound)(args);
       else
-        func.bind(state)(...args);
+        func.bind(bound)(...args);
     };
   }
 
   for (let [name, func] of getters) {
     res.getters[name] = function(state, getters) {
-      for (let key of Reflect.ownKeys(state)) {
-        getters[key] = state[key];
-      }
-      return func.bind(getters)();
+      let bound = new Proxy(getters, {
+        get(target, name) {
+          return name in target ? target[name] : state[name];
+        }
+      });
+      return func.bind(bound)();
     };
   }
 
