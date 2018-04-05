@@ -3,7 +3,9 @@
 This is an experimental module.
 
 use
-https://github.com/Muratam/vue-vuex-from-class/blob/master/src/class/tovue.js like
+https://github.com/Muratam/vue-vuex-from-class/blob/master/src/class/tovue.js
+
+like
 `import {toVue,toVuex} from "./tovue.js";`
 
 # try
