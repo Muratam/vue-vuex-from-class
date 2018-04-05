@@ -39,7 +39,7 @@ normal vue (not fun)
 });
 ```
 
-... is same as class based vue (so fun !!)
+... is same as this class based vue (so fun !!)
 
 ```js
 toVue(
@@ -78,7 +78,7 @@ new Vuex.Store({
 })
 ```
 
-... is same as class based vuex (so fun !!)
+... is same as this class based vuex (so fun !!)
 ```js
 toVuex(class {
   constructor() { this.storeStateA = 'STORE_STATE_A'; }
@@ -110,7 +110,7 @@ normal vue component (not fun)
 })
 ```
 
-... is same as class based vue component (so fun !!)
+... is same as this class based vue component (so fun !!)
 
 ```js
 toVue(
