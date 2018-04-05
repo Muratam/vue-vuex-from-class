@@ -14,57 +14,27 @@ div
 <script>
 import Child from "./child";
 import { toVue } from "./tovue";
-
-class Normal {
-  constructor() {
-    this.normalData = Normal.n() + "ORMAL_DATA";
-  }
-  toLower(str) {
-    return str.toLowerCase() + this.normalData;
-  }
-  get normalDataLower() {
-    return this.normalData.toLowerCase();
-  }
-  static components() {
-    return { child: Child };
-  }
-  static n() {
-    return "n";
-  }
-  get $$storeStateA() {}
-  set $$storeStateA(_) {}
-}
-module.exports = toVue(Normal);
-/*
-module.exports = {
-  methods: {
+module.exports = toVue(
+  class Normal {
+    constructor() {
+      this.normalData = Normal.n() + "ORMAL_DATA";
+    }
     toLower(str) {
       return str.toLowerCase() + this.normalData;
     }
-  },
-  computed: {
-    normalDataLower() {
+    get normalDataLower() {
       return this.normalData.toLowerCase();
-    },
-    $$storeStateA: {
-      get() {
-        return this.$store.state.storeStateA;
-      },
-      set(value) {
-        this.$store.commit("$$storeStateA", value);
-      }
     }
-  },
-  data() {
-    return {
-      normalData: "NORMAL_DATA"
-    };
-  },
-  components: {
-    child: Child
+    static components() {
+      return { child: Child };
+    }
+    static n() {
+      return "n";
+    }
+    get $$storeStateA() {}
+    set $$storeStateA(_) {}
   }
-};
-*/
+);
 </script>
 <style scoped lang="less">
 
