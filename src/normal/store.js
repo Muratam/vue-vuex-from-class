@@ -1,6 +1,13 @@
 import Vue from 'vue/dist/vue.esm.js';
 import Vuex from 'vuex';
 Vue.use(Vuex);
+
+class Store {
+  constructor() {  // 引数はぜろ？
+    this.storeStateA = 'STORE_STATE_A';
+  }
+}
+
 export default new Vuex.Store({
   state: {
     storeStateA: 'STORE_STATE_A',

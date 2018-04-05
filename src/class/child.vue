@@ -3,31 +3,22 @@ div
   hr
   p here is child
   p Data: childData :: {{ childData }}
-  p Store : storeStateA:: {{ $$storeStateA }}
+  p Store: storeStateA:: {{ $$storeStateA }}
   button(@click="$$storeStateA = 'Child_STORE_STATE_A'")
     p change store state A by Computed Method @ child
   hr
 </template>
 <script>
-module.exports = {
-  methods: {},
-  computed: {
-    $$storeStateA: {
-      get() {
-        return this.$store.state.storeStateA;
-      },
-      set(value) {
-        this.$store.commit("$$storeStateA", value);
-      }
+import { toVue } from "./tovue";
+module.exports = toVue(
+  class Child {
+    constructor(propA) {
+      this.childData = "CHILD_DATA" + propA;
     }
-  },
-  data() {
-    return {
-      childData: "CHILD_DATA" + this.propA
-    };
-  },
-  props: ["propA"]
-};
+    get $$storeStateA() {}
+    set $$storeStateA(_) {}
+  }
+);
 </script>
 <style scoped lang="less">
 

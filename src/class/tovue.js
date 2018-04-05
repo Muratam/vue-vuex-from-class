@@ -96,7 +96,10 @@ export function toVue(Class) {
       getters.map(([name, func]) => !name.startsWith('$$') ? [name, func] : [
         name,
         function() {
-          return this.$store.state[name.slice(2)];
+          let funcName = name.slice(2);
+          return (funcName in this.$store.state) ?
+              this.$store.state[funcName] :
+              this.$store.getters[funcName];
         }
       ]);
   setters =

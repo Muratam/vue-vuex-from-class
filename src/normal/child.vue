@@ -9,16 +9,26 @@ div
   hr
 </template>
 <script>
-import { toVue } from "./tovue";
-module.exports = toVue(
-  class Child {
-    constructor(propA) {
-      this.childData = "CHILD_DATA" + propA;
+module.exports = {
+  methods: {},
+  computed: {
+    $$storeStateA: {
+      get() {
+        return this.$store.state.storeStateA;
+      },
+      set(value) {
+        this.$store.commit("$$storeStateA", value);
+      }
     }
-    get $$storeStateA() {}
-    set $$storeStateA(_) {}
-  }
-);
+  },
+  data() {
+    console.log(this);
+    return {
+      childData: "CHILD_DATA" + this.propA
+    };
+  },
+  props: ["propA"]
+};
 </script>
 <style scoped lang="less">
 
