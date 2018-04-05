@@ -5,10 +5,11 @@
   "author": "murata",
   "private": false,
   "scripts": {
-    "start": "npm run build",
-    "server": "node server/server.js",
-    "watch": "parcel watch --public-url ./ --no-cache src/index.pug",
-    "build": "cross-env NODE_ENV=production parcel build --public-url ./ --no-cache src/index.pug"
+    "start": "npm install && npm run normal",
+    "normal": "parcel watch --public-url ./ --no-cache src/normal/index.pug",
+    "normal-build": "cross-env NODE_ENV=production parcel build --public-url ./ --no-cache src/normal/index.pug",
+    "class": "parcel watch --public-url ./ --no-cache src/class/index.pug",
+    "class-build": "cross-env NODE_ENV=production parcel build --public-url ./ --no-cache src/class/index.pug"
   },
   "dependencies": {},
   "devDependencies": {
@@ -18,13 +19,13 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-latest": "^6.0.0",
     "babel-preset-vue": "^2.0.2",
-    "parcel-bundler": "^1.5.0",
-    "parcel-plugin-pug": "^0.2.4",
-    "parcel-plugin-vue": "^1.5.0",
-    "vue": "^2.2.1",
-    "vue-template-compiler": "^2.5.16",
+    "parcel-bundler": "1.6.2",
+    "parcel-plugin-pug": "0.2.7",
+    "parcel-plugin-vue": "1.5.0",
+    "vue": "2.5.16",
+    "vue-template-compiler": "2.5.16",
     "vuex": "^3.0.1",
-    "cross-env": "^5.1.3",
+    "cross-env": "^5.1.4",
     "jquery": "^3.1.1",
     "less": "^2.7.3",
     "pug": "^2.0.1"
