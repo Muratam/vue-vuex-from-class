@@ -1,49 +1,7 @@
+import Vue from 'vue/dist/vue.esm.js';
+import Vuex from 'vuex';
+
 // classで書くことによってVueに依存せず使えるし,静的解析も可能になる
-
-class Component {
-  // data に登録されるオブジェクトを描く
-  // args は props
-  // デフォルト引数 / ... はどうなるか未定義
-  constructor(args) {
-    this.currentGenre = 'all';
-  }
-  // getter / setter は computed へ行く
-  get computedHoge() {}
-  set computedHoge(value) {}
-  // $$(.store.state)から始まるとstore参照を自動生成
-  // hoge : this.$store.state.hoge; を computed に追加
-  get $$hoge() {}
-  // hoge : this.$store.commit('$hoge', value); を computed に追加
-  set $$hoge(_) {}
-  // 特別なAPIのものは外にだす
-  mounted() {}
-  // それ以外のものは methods へ
-  iikanji() {}
-  // watch は生っぽい書き方になるがいたしかたなし
-  watch() {
-    return {};
-  }
-  // static は無視されるがthisに依存しないので問題なく使える
-  static me() {}
-}
-
-// WARN: 自動で: ...mutationByAssign(['currentGenre',]),
-class Store {
-  // state に登録されるオブジェクト
-  constructor() {
-    this.currentGenre = 'all';
-  }
-  // 生えているメソッドはmutationsに行く
-  iikanji(genre) {}
-  // get のメソッドは getter に
-  get genreCount() {}
-  // $$hoge(state, value){state.hoge = value;} をmutationに追加 (要は外部公開)
-  set hoge(v) {}
-  // static は無視されるがthisに依存しないので使える
-  static me() {}
-  // actions は知らない
-}
-
 function getParams(func, isConstructor = false) {
   // コメントと空白を取り除いて正規化
   let source = func.toString().replace(/\/\/.*$|\/\*[\s\S]*?\*\/|\s/gm, '');
@@ -133,67 +91,52 @@ export function toVue(Class) {
     for (let m of members) res[m] = instance[m];
     return res;
   };
-  console.log(res);
   return res;
 }
-export function toVuex(Class) {}
 
-/*
-function translate(Class) {
-  let object = new Class();
-  let result = {state: {}, getters: {}, mutations: {}};
-  for (let k of Object.keys(object)) {
-    result.state[k] = object[k];
+
+
+export function toVuex(Class) {
+  console.assert(
+      getParams(Class).length === 0,
+      'no arguments required for constructor of store !!');
+  let res = {
+    state: {},
+    getters: {},
+    mutations: {},
+  };
+  // methods
+  let {methods, getters, setters} = getMethods(Class);
+  for (let [name, func] of methods) {
+    res.mutations[name] = function(state, args) {
+      // this に state をバインドして展開して実行
+      if (typeof (args) !== 'object')
+        func.bind(state)(args);
+      else
+        func.bind(state)(...args);
+    };
   }
-  for (let k of Object.getOwnPropertyNames(Class.prototype)) {
-    if (k === 'constructor') continue;
-    if (typeof (object[k]) === 'function') {
-      result.mutations[k] = object[k];
-    } else {
-      result.getters[k] = object[k];
-    }
+
+  for (let [name, func] of getters) {
+    res.getters[name] = function(state, getters) {
+      for (let key of Reflect.ownKeys(state)) {
+        getters[key] = state[key];
+      }
+      return func.bind(getters)();
+    };
   }
-  return result;
+
+  for (let [name, func] of setters) {
+    console.assert(name.startsWith('$$'), 'setters without $$ are not allowed');
+    res.mutations[name] = function(state, value) {
+      state[name.slice(2)] = value;
+    };
+  }
+
+  // state
+  let instance = new Class();
+  let members = getMembers(instance);
+  for (let m of members) res.state[m] = instance[m];
+  Vue.use(Vuex);
+  return new Vuex.Store(res);
 }
-console.log(translate(Store));
-console.log(translate(Component));
-*/
-/*
-let translated = {
-  state: {
-    genres: [{ name: 'aa', id: 0 }, { name: 'bb', id: 1 }],
-    currentGenre: 'all',
-  },
-  getters: {
-    howName: state => howId => {
-      for (let how of state.hows) {
-        if (how.id === howId) return how.name;
-      }
-      console.log('no how', howId);
-      return 'all';
-    },
-    genreName: state => genreId => {
-      for (let genre of state.genres) {
-        if (genre.id === genreId) return genre.name;
-      }
-      console.log('no genre', genreId);
-      return 'all';
-    },
-    visibleMemoCount: (state, getters) => {
-      return getters.visibleContents.map(x => x.memos.length || 0)
-        .reduce((x, y) => x + y, 0);
-    }
-  },
-  mutations: {
-    ...bindStateToThisAtMutation({
-      startBlackout(type) {
-        this.blackoutPalletType = type;
-      },
-      save(key) {
-        this.saveData.save(key, this[key]);
-      },
-    }),
-    // ...mutationByAssign(['currentGenre', 'currentHow', 'findQuery']),
-  },
-};
-*/
