@@ -124,19 +124,21 @@ export function toVuex(Class) {
   let {methods, getters, setters} = getMethods(Class);
   for (let [name, func] of methods) {
     res.mutations[name] = function(state, args) {
-      let self = this;
       let bound = new Proxy(state, {
-        get(target, name) {
+        get: (target, name) => {
           return name in target ?
               target[name] :
-              name in self.getters ? self.getters[name] :
-                                     self._mutations[name][0];
+              name in this.getters ?
+              self.getters[name] :
+              name in this._mutations ? this._mutations[name][0] : this[name];
         }
       });
-      if (typeof (args) !== 'object')
+      if (Object.is(args, undefined) || Object.is(args, null))
         func.bind(bound)(args);
-      else
+      else if (Object.is(Object.getPrototypeOf(args), Array.prototype))
         func.bind(bound)(...args);
+      else  // 配列のときだけ
+        func.bind(bound)(args);
     };
   }
 
