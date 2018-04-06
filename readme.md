@@ -114,6 +114,7 @@ normal vue component (not fun)
 ```js
 toVue(
   class Child {
+    // props is needed  for js optimization...
     static get props(){ return ["propA"]; }
     constructor(propA) { this.childData = "CHILD_DATA" + propA; }
     get $$storeStateA() {}
