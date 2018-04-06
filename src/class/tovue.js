@@ -102,7 +102,6 @@ export function toVue(Class) {
       getParams(Class).length === res.props.length,
       'the number of constructor arguments is the same as props');
   let props = res.props;
-  // ["a","b","c"] => [this.a,this.b,this.c] の順で入る
   res.data = function() {
     let args = props.map(p => this[p]);
     let instance = new Class(...args);
@@ -134,16 +133,16 @@ export function toVuex(Class) {
           return name in target ?
               target[name] :
               name in this.getters ?
-              self.getters[name] :
-              name in this._mutations ? this._mutations[name][0] : this[name];
+              ((...args) => this.getters[name](args)) :
+              name in this._mutations ?
+              ((...args) => this._mutations[name][0](args)) :
+              this[name];
         }
       });
-      // TODO: 配列だが一つのときはunpackしないのでは
-      if (Object.is(args, undefined) || Object.is(args, null))
-        func.bind(bound)(args);
-      else if (Object.is(Object.getPrototypeOf(args), Array.prototype))
+      if (args !== undefined && args !== undefined &&
+          Object.is(Object.getPrototypeOf(args), Array.prototype))
         func.bind(bound)(...args);
-      else  // 配列のときだけ
+      else
         func.bind(bound)(args);
     };
   }
