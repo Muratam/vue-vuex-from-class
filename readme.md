@@ -45,7 +45,7 @@ normal vue (not fun)
 toVue(
   class {
     constructor() { this.classData = "CLASS_DATA"; }
-    static components() { return { child: Child }; }
+    static get components() { return { child: Child }; }
     toLower(str) { return str.toLowerCase() + this.classData; }
     get classDataLower() { return this.classData.toLowerCase();}
     get $$storeStateA() {}
@@ -114,6 +114,7 @@ normal vue component (not fun)
 ```js
 toVue(
   class Child {
+    static get props(){ return ["propA"]; }
     constructor(propA) { this.childData = "CHILD_DATA" + propA; }
     get $$storeStateA() {}
     set $$storeStateA(_) {}

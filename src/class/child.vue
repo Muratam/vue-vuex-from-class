@@ -12,6 +12,9 @@ div
 import { toVue } from "./tovue";
 module.exports = toVue(
   class Child {
+    static get props() {
+      return ["propA"];
+    }
     constructor(propA) {
       this.childData = "CHILD_DATA" + propA;
     }

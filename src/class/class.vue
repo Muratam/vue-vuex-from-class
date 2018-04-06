@@ -26,7 +26,7 @@ module.exports = toVue(
     get classDataLower() {
       return this.classData.toLowerCase();
     }
-    static components() {
+    static get components() {
       return { child: Child };
     }
     static c() {

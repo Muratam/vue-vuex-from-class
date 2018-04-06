@@ -92,12 +92,17 @@ export function toVue(Class) {
   }
   // setup components
   let statics = getStatics(Class);
+  res.props = [];
   for (let s of statics) {
-    if (s === 'components') res.components = Class[s]();
+    if (s === 'components') res.components = Class[s];
+    if (s === 'props') res.props = Class[s];
   }
   // setup props and data
-  let props = getParams(Class);
-  if (props.length !== 0) res.props = props;
+  console.assert(
+      getParams(Class).length === res.props.length,
+      'the number of constructor arguments is the same as props');
+  let props = res.props;
+  // ["a","b","c"] => [this.a,this.b,this.c] の順で入る
   res.data = function() {
     let args = props.map(p => this[p]);
     let instance = new Class(...args);
@@ -133,6 +138,7 @@ export function toVuex(Class) {
               name in this._mutations ? this._mutations[name][0] : this[name];
         }
       });
+      // TODO: 配列だが一つのときはunpackしないのでは
       if (Object.is(args, undefined) || Object.is(args, null))
         func.bind(bound)(args);
       else if (Object.is(Object.getPrototypeOf(args), Array.prototype))
